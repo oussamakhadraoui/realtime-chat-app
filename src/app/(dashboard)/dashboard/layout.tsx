@@ -7,6 +7,7 @@ import { Icon, Icons } from '@/components/icons'
 import Image from 'next/image'
 import SignOutButton from '@/components/SignOutButton'
 import FriendRequest from '@/components/FriendRequest'
+import { CommandRedis } from '@/utils/redis'
 
 interface layoutProps {
   children: ReactNode
@@ -25,6 +26,13 @@ const layout = async ({ children }: layoutProps) => {
   const session = await getServerSession(authOptions)
 
   if (!session) notFound()
+  const unseenRequestCount = (
+    (await CommandRedis(
+      'smembers',
+      `user:${session.user.id}:incoming_friend_request`
+    )) as User[]
+  ).length
+
   return (
     <div className='w-full flex h-screen'>
       <div className='flex h-full w-full max-w-xs grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white px-6'>
@@ -62,7 +70,10 @@ const layout = async ({ children }: layoutProps) => {
             </li>
 
             <li>
-              <FriendRequest />
+              <FriendRequest
+                sessionId={session.user.id}
+                unseenRequest={unseenRequestCount}
+              />
             </li>
             <li className='-mx-6 mt-auto flex'>
               <div className='flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900'>
