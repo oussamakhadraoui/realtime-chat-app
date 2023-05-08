@@ -8,6 +8,9 @@ import Image from 'next/image'
 import SignOutButton from '@/components/SignOutButton'
 import FriendRequest from '@/components/FriendRequest'
 import { CommandRedis } from '@/utils/redis'
+import { User } from '@/types/db'
+import { getFriendByUserId } from '@/utils/get-friend-list'
+import SidebarChatList from '@/components/sidebarChatList'
 
 interface layoutProps {
   children: ReactNode
@@ -33,18 +36,24 @@ const layout = async ({ children }: layoutProps) => {
     )) as User[]
   ).length
 
+  const friends = await getFriendByUserId(session.user.id)
+
   return (
     <div className='w-full flex h-screen'>
       <div className='flex h-full w-full max-w-xs grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white px-6'>
         <Link href='/dashboard' className='flex h-16 shrink-0 items-center'>
           <Icons.logo className='h-8 w-auto text-indigo-600' />
         </Link>
-        <div className='text-xs font-semibold leading-6 text-gray-400'>
-          Your chats
-        </div>
+        {friends.length > 0 && (
+          <div className='text-xs font-semibold leading-6 text-gray-400'>
+            Your chats
+          </div>
+        )}
         <nav className='flex flex-1 flex-col'>
           <ul role='list' className='flex flex-1 flex-col gap-y-7'>
-            <li> /chats that u got</li>
+            <li>
+              <SidebarChatList sessionID={session.user.id} friends={friends} />
+            </li>
             <li>
               <div className='text-xs font-semibold leading-6 text-gray-400'>
                 overview
@@ -66,15 +75,15 @@ const layout = async ({ children }: layoutProps) => {
                     </li>
                   )
                 })}
+                <li>
+                  <FriendRequest
+                    sessionId={session.user.id}
+                    unseenRequest={unseenRequestCount}
+                  />
+                </li>
               </ul>
             </li>
 
-            <li>
-              <FriendRequest
-                sessionId={session.user.id}
-                unseenRequest={unseenRequestCount}
-              />
-            </li>
             <li className='-mx-6 mt-auto flex'>
               <div className='flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900'>
                 <div className='relative h-8 w-8 bg-gray-50'>
