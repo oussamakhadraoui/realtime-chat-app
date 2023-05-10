@@ -1,5 +1,7 @@
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { pusherServer } from '@/lib/pusher'
+import { pusherTransKey } from '@/lib/utils'
 import { Message, messageValidator } from '@/lib/validation/message'
 import { User } from '@/types/db'
 import { CommandRedis } from '@/utils/redis'
@@ -43,7 +45,11 @@ export async function POST(req: Request) {
       timeStamp,
     }
     const message = messageValidator.parse(messageData)
-
+    await pusherServer.trigger(
+      pusherTransKey(`chat:${chatId}`),
+      'incoming-message',
+      message
+    )
     await db.zadd(`chat:${chatId}:message`, {
       score: timeStamp,
       member: JSON.stringify(message),

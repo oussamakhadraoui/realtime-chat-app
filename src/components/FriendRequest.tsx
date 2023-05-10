@@ -1,16 +1,34 @@
 'use client'
 
+import { pusherClient } from '@/lib/pusher'
+import { pusherTransKey } from '@/lib/utils'
 import { User } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface FriendRequestProps {
   unseenRequest: number
   sessionId: string
 }
 
-const FriendRequest = ({ unseenRequest }: FriendRequestProps) => {
+const FriendRequest = ({ unseenRequest, sessionId }: FriendRequestProps) => {
   const [unseenRequests, setUnseenRequests] = useState<number>(unseenRequest)
+
+  useEffect(() => {
+    pusherClient.subscribe(
+      pusherTransKey(`user:${sessionId}:incoming_friend_requests`)
+    )
+    const realTimeFunction = () => {
+      setUnseenRequests((prev) => prev + 1)
+    }
+    pusherClient.bind('incoming_friend_requests', realTimeFunction)
+    return () => {
+      pusherClient.unsubscribe(
+        pusherTransKey(`user:${sessionId}:incoming_friend_requests`)
+      )
+      pusherClient.unbind('incoming_friend_requests', realTimeFunction)
+    }
+  }, [sessionId])
   return (
     <Link
       href='/dashboard/requests'

@@ -1,16 +1,18 @@
 'use client'
-import { cn } from '@/lib/utils'
+import { pusherClient } from '@/lib/pusher'
+import { cn, pusherTransKey } from '@/lib/utils'
 import { Message } from '@/lib/validation/message'
 import { User } from '@/types/db'
 import { format } from 'date-fns'
 import Image from 'next/image'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface MessageProps {
   initialMSG: Message[]
   sessionId: string
   chatPartner: User
   sessionImg: string | null | undefined
+  chatId: string
 }
 
 const MessageComponent: React.FC<MessageProps> = ({
@@ -18,6 +20,7 @@ const MessageComponent: React.FC<MessageProps> = ({
   sessionId,
   chatPartner,
   sessionImg,
+  chatId,
 }) => {
   const [initialMessage, setInitialMessage] = useState<Message[]>(initialMSG)
   const scrollDownRef = useRef<HTMLDivElement | null>(null)
@@ -25,6 +28,19 @@ const MessageComponent: React.FC<MessageProps> = ({
   const getTimeNow = (x: number) => {
     return format(x, 'HH:mm')
   }
+  useEffect(() => {
+    pusherClient.subscribe(pusherTransKey(`chat:${chatId}`))
+    const realTime = (message: Message) => {
+      setInitialMessage((prev) => {
+        return [...prev, message]
+      })
+    }
+    pusherClient.bind('incoming-message', realTime)
+    return () => {
+      pusherClient.unsubscribe(pusherTransKey(`chat:${sessionId}`))
+      pusherClient.unbind('incoming-message', realTime)
+    }
+  }, [])
   return (
     <div
       id='messages'

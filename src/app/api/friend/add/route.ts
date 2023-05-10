@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth'
 import { CommandRedis } from '../../../../utils/redis'
 import { db } from '@/lib/db'
 import { z } from 'zod'
+import { pusherServer } from '@/lib/pusher'
+import { pusherTransKey } from '@/lib/utils'
 
 export async function POST(req: Request) {
   try {
@@ -39,6 +41,7 @@ export async function POST(req: Request) {
     if (alreadyAdded) {
       return new Response('you already added this user', { status: 400 })
     }
+
     const friend = (await CommandRedis(
       'sismember',
       `user:${session.user.id}:friends`,
@@ -47,6 +50,16 @@ export async function POST(req: Request) {
     if (friend) {
       return new Response('you are already friends', { status: 400 })
     }
+
+    await pusherServer.trigger(
+      pusherTransKey(`user:${IdToAdd}:incoming_friend_requests`),
+      'incoming_friend_requests',
+      {
+        senderID: session.user.id,
+        senderEmail: session.user.email,
+      }
+    )
+
     db.sadd(`user:${IdToAdd}:incoming_friend_request`, session.user.id)
     return new Response('OK')
   } catch (error) {
