@@ -1,6 +1,6 @@
 
 
-## Getting Started
+## little decription
 creating an chat app with a realtime rendering with pusher
 i use typescript with nextJs
 upstash as a data base
