@@ -20,7 +20,7 @@ const getChatMessages = async (chatID: string) => {
   try {
     const results: string[] = await CommandRedis(
       'zrange',
-      `chat:${chatID}:messages`,
+      `chat:${chatID}:message`,
       0,
       -1
     )
@@ -71,10 +71,12 @@ const Page = async ({ params }: PageProps) => {
         </div>
       </div>
       <MessageComponent
+        chatPartner={chatPartner}
+        sessionImg={session.user.image}
         sessionId={session.user.id}
         initialMSG={actualMessage}
       />
-      <ChatInput chatPartner={chatPartner} />
+      <ChatInput chatId={chatId} chatPartner={chatPartner} />
     </div>
   )
 }

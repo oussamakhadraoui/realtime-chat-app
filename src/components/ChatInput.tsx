@@ -3,16 +3,34 @@ import { User } from '@/types/db'
 import React, { useRef, useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 import Button from './ui/Button'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 
 interface ChatInputProps {
   chatPartner: User
+  chatId: string
 }
 
-const ChatInput = ({ chatPartner }: ChatInputProps) => {
+const ChatInput = ({ chatPartner, chatId }: ChatInputProps) => {
   const text = useRef<HTMLTextAreaElement | null>(null)
   const [value, setValue] = useState<string>('')
   const [isLoading, setIsloading] = useState<boolean>(false)
-  const sendMsg = () => {}
+  const sendMsg = async () => {
+    setIsloading(true)
+    try {
+      await axios.post('/api/message/send', {
+        text: text.current?.value,
+        chatId,
+      })
+      setValue('')
+      text.current?.focus()
+    } catch (error) {
+      console.log(error)
+      toast.error('something went wrong try later')
+    } finally {
+      setIsloading(false)
+    }
+  }
   return (
     <div className='border-t border-gray-200 px-4 pt-4 mb-2 sm:mb-0'>
       <div className='relative flex-1 overflow-hidden rounded-lg shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600'>
@@ -27,6 +45,7 @@ const ChatInput = ({ chatPartner }: ChatInputProps) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
               sendMsg()
+              console.log('sending message')
             }
           }}
         />
