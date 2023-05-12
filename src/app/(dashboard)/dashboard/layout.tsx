@@ -11,17 +11,19 @@ import { CommandRedis } from '@/utils/redis'
 import { User } from '@/types/db'
 import { getFriendByUserId } from '@/utils/get-friend-list'
 import SidebarChatList from '@/components/sidebarChatList'
+import { SidebarOption } from '@/types/sideBarOp'
+import MobileLayout from '@/components/mobileLayout'
 
 interface layoutProps {
   children: ReactNode
 }
-interface SideBarOption {
-  id: number
-  name: string
-  href: string
-  Icon: Icon
-}
-const sideBarOption: SideBarOption[] = [
+// interface SideBarOption {
+//   id: number
+//   name: string
+//   href: string
+//   Icon: Icon
+// }
+const sideBarOption: SidebarOption[] = [
   { id: 1, name: 'Add friend', href: '/dashboard/add', Icon: 'UserPlus' },
 ]
 
@@ -40,7 +42,16 @@ const layout = async ({ children }: layoutProps) => {
 
   return (
     <div className='w-full flex h-screen'>
-      <div className='flex h-full w-full max-w-xs grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white px-6'>
+      <div className='md:hidden'>
+        <MobileLayout
+          friends={friends}
+          session={session}
+          sidebarOptions={sideBarOption}
+          unseenRequestCount={unseenRequestCount}
+        />
+      </div>
+
+      <div className='hidden md:flex h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6'>
         <Link href='/dashboard' className='flex h-16 shrink-0 items-center'>
           <Icons.logo className='h-8 w-auto text-indigo-600' />
         </Link>

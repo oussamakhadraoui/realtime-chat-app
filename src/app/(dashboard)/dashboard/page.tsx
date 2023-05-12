@@ -1,5 +1,6 @@
 import { authOptions } from '@/lib/auth'
 import { chatLinkGen } from '@/lib/utils'
+import { Message } from '@/lib/validation/message'
 import { getFriendByUserId } from '@/utils/get-friend-list'
 import { CommandRedis } from '@/utils/redis'
 import { ChevronRight } from 'lucide-react'
@@ -18,12 +19,12 @@ const page = async ({}) => {
     friends.map(async (friend) => {
       const [lastMessageRaw] = (await CommandRedis(
         'zrange',
-        `chat:${chatLinkGen(session.user.id, friend.id)}:messages`, ////////////////////////////
+        `chat:${chatLinkGen(session.user.id, friend.id)}:message`, ////////////////////////////
         -1,
         -1
       )) as string[]
       console.log(lastMessageRaw)
-      const lastMessage = JSON.parse(lastMessageRaw) //as Message
+      const lastMessage = JSON.parse(lastMessageRaw) //parse(lastMessageRaw) as Message[]
 
       return {
         ...friend,
