@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { notFound } from 'next/navigation'
 import { ReactNode } from 'react'
 import Link from 'next/link'
-import { Icon, Icons } from '@/components/icons'
+import { Icons } from '@/components/icons'
 import Image from 'next/image'
 import SignOutButton from '@/components/SignOutButton'
 import FriendRequest from '@/components/FriendRequest'
@@ -12,17 +12,12 @@ import { User } from '@/types/db'
 import { getFriendByUserId } from '@/utils/get-friend-list'
 import SidebarChatList from '@/components/sidebarChatList'
 import { SidebarOption } from '@/types/sideBarOp'
-import MobileLayout from '@/components/mobileLayout'
+import MobileLayout from '@/components/MobileLayout'
 
 interface layoutProps {
   children: ReactNode
 }
-// interface SideBarOption {
-//   id: number
-//   name: string
-//   href: string
-//   Icon: Icon
-// }
+
 const sideBarOption: SidebarOption[] = [
   { id: 1, name: 'Add friend', href: '/dashboard/add', Icon: 'UserPlus' },
 ]
