@@ -32,7 +32,7 @@ const MessageComponent: React.FC<MessageProps> = ({
     pusherClient.subscribe(pusherTransKey(`chat:${chatId}`))
     const realTime = (message: Message) => {
       setInitialMessage((prev) => {
-        return [...prev, message]
+        return [message, ...prev] // this is import to put the message in the end of the list
       })
     }
     pusherClient.bind('incoming-message', realTime)
@@ -40,7 +40,7 @@ const MessageComponent: React.FC<MessageProps> = ({
       pusherClient.unsubscribe(pusherTransKey(`chat:${sessionId}`))
       pusherClient.unbind('incoming-message', realTime)
     }
-  }, [])
+  }, [chatId, sessionId])
   return (
     <div
       id='messages'

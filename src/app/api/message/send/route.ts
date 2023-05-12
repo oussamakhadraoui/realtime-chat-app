@@ -16,8 +16,6 @@ export async function POST(req: Request) {
       return new Response('not Auth', { status: 401 })
     }
     const [chatId1, chatId2] = chatId.split('--')
-    // console.log(chatId1, ',-------------,', chatId2)
-    // console.log(session.user.id)
     if (session.user.id !== chatId1 && session.user.id !== chatId2) {
       return new Response('not Auth', { status: 402 })
     }
@@ -35,7 +33,6 @@ export async function POST(req: Request) {
       `user:${session.user.id}`
     )) as string
     const dataSender = JSON.parse(Sender) as User
-    console.log(dataSender)
 
     const timeStamp = Date.now()
     const messageData: Message = {
@@ -49,6 +46,15 @@ export async function POST(req: Request) {
       pusherTransKey(`chat:${chatId}`),
       'incoming-message',
       message
+    )
+    await pusherServer.trigger(
+      pusherTransKey(`user:${friendId}:chats`),
+      'chat_notification',
+      {
+        ...message,
+        senderImg: dataSender.image,
+        senderName: dataSender.name,
+      }
     )
     await db.zadd(`chat:${chatId}:message`, {
       score: timeStamp,

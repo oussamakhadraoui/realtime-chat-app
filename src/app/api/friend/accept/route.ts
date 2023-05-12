@@ -1,5 +1,7 @@
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { pusherServer } from '@/lib/pusher'
+import { pusherTransKey } from '@/lib/utils'
 import { CommandRedis } from '@/utils/redis'
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
@@ -32,7 +34,11 @@ export async function POST(req: Request) {
     if (hasFriendRequest) {
       return new Response('No friend request', { status: 400 })
     }
-
+    pusherServer.trigger(
+      pusherTransKey(`user:${idToAdd}:friends`),
+      'friend_notification',
+      {}
+    )
     await db.sadd(`user:${session.user.id}:friend`, idToAdd)
     await db.sadd(`user:${idToAdd}:friend`, session.user.id)
     await db.srem(`user:${session.user.id}:incoming_friend_request`, idToAdd)

@@ -3,6 +3,7 @@ import { NextAuthOptions } from 'next-auth'
 import { db } from './db'
 import GoogleProvider from 'next-auth/providers/google'
 import { CommandRedis } from '@/utils/redis'
+import { User } from '@/types/db'
 
 const googleCredentials = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID
