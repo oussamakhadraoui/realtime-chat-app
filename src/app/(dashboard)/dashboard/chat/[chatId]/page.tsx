@@ -43,7 +43,12 @@ const Page = async ({ params }: PageProps) => {
     return notFound()
   }
   const chatPartnerID = user.id === chatId1 ? chatId2 : chatId1
-  const chatPartner = (await db.get(`user:${chatPartnerID}`)) as User
+  // const chatPartner = (await db.get(`user:${chatPartnerID}`)) as User
+  const chatPartnerRaw = (await CommandRedis(
+    'get',
+    `user:${chatPartnerID}`
+  )) as string
+  const chatPartner = JSON.parse(chatPartnerRaw) as User
   const actualMessage = await getChatMessages(chatId)
   return (
     <div className='flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]'>
