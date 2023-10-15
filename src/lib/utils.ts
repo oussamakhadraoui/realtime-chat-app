@@ -12,3 +12,4 @@ export const pusherTransKey = (key: string) => {
   const data = key.replace(/:/g, '__')
   return data
 }
+
